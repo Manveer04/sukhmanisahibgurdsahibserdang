@@ -140,36 +140,6 @@ body {
   white-space: nowrap;
 }
 
-.theme-toggle {
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 6px 10px;
-  cursor: pointer;
-  font-size: 1.1rem;
-  color: var(--text-secondary);
-  transition: background var(--transition), border var(--transition);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.theme-toggle:hover {
-  background: var(--bg-primary);
-}
-
-.icon-moon {
-  display: none;
-}
-
-body.dark .icon-sun {
-  display: none;
-}
-
-body.dark .icon-moon {
-  display: inline;
-}
-
 /* ============================================
    Filters
    ============================================ */

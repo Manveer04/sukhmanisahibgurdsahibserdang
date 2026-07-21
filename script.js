@@ -42,7 +42,6 @@
   const $noSessions = document.getElementById("no-sessions");
   const $grid = document.getElementById("sessions-grid");
   const $lastUpdated = document.getElementById("last-updated");
-  const $themeToggle = document.getElementById("theme-toggle");
   const $filterDate = document.getElementById("filter-date");
   const $filterTime = document.getElementById("filter-time");
   const $filterAvailable = document.getElementById("filter-available");
@@ -60,29 +59,6 @@
   let allSessions = [];
   let previousData = null;
   let currentSession = null;
-
-  // ========================================
-  // DARK MODE
-  // ========================================
-
-  function initTheme() {
-    const saved = localStorage.getItem("theme");
-    if (saved === "dark") {
-      document.body.classList.add("dark");
-    } else if (saved === "light") {
-      document.body.classList.remove("dark");
-    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      document.body.classList.add("dark");
-    }
-  }
-
-  function toggleTheme() {
-    document.body.classList.toggle("dark");
-    localStorage.setItem(
-      "theme",
-      document.body.classList.contains("dark") ? "dark" : "light"
-    );
-  }
 
   // ========================================
   // DATE SORTING
@@ -310,7 +286,7 @@
         "    Book via WhatsApp" +
         "  </button>";
     } else {
-      actionsHtml = '<div class="booked-label">This session is fully booked</div>';
+      actionsHtml = '<div class="booked-label">This session is booked</div>';
     }
 
     card.innerHTML =
@@ -414,11 +390,6 @@
   // ========================================
 
   function init() {
-    initTheme();
-
-    // Theme toggle
-    $themeToggle.addEventListener("click", toggleTheme);
-
     // Filter listeners
     $filterDate.addEventListener("change", renderSessions);
     $filterTime.addEventListener("change", renderSessions);
