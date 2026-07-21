@@ -13,7 +13,7 @@
   // CONFIGURATION
   // ========================================
 
-  const API_URL = "https://script.google.com/macros/s/AKfycbzf8GqWTCGSN-OqGUW6QoywCjwEVK100tk2oMdKqnsNuCzjgfCMr7axNvE6nrK1M_bO/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbxwV9ANji2j-Aq2wckCl0nWYRQgzT-Mywa0PL-5XdZzBK4wa6LBnQscYdaWeTZNpU4r/exec";
   const REFRESH_INTERVAL = 30000;
 
   const CONTACTS = [
@@ -86,15 +86,46 @@
   // ========================================
 
   const TIME_ORDER = { "9-11am": 0, "12-2pm": 1, "3-5pm": 2 };
+  const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const MONTHS = ["January", "February", "March", "April", "May", "June",
+                   "July", "August", "September", "October", "November", "December"];
 
   function parseDate(dateStr) {
-    const parts = dateStr.trim().split("/");
-    if (parts.length !== 3) return new Date(0);
-    const month = parseInt(parts[0], 10) - 1;
-    const day = parseInt(parts[1], 10);
-    const year = parseInt(parts[2], 10);
-    if (isNaN(month) || isNaN(day) || isNaN(year)) return new Date(0);
-    return new Date(year, month, day);
+    if (!dateStr) return new Date(0);
+    var s = String(dateStr).trim();
+    // Handle ISO format (from JSON.stringify of Date objects)
+    if (s.indexOf("T") !== -1 || s.match(/^\d{4}-\d{2}-\d{2}/)) {
+      var d = new Date(s);
+      return isNaN(d.getTime()) ? new Date(0) : d;
+    }
+    // Handle M/D/YYYY
+    var parts = s.split("/");
+    if (parts.length === 3) {
+      var month = parseInt(parts[0], 10) - 1;
+      var day = parseInt(parts[1], 10);
+      var year = parseInt(parts[2], 10);
+      if (!isNaN(month) && !isNaN(day) && !isNaN(year)) {
+        return new Date(year, month, day);
+      }
+    }
+    return new Date(0);
+  }
+
+  function formatDisplayDate(dateStr) {
+    var d = parseDate(dateStr);
+    if (d.getTime() === 0) return dateStr || "";
+    var day = d.getDate();
+    var suffix = "th";
+    if (day === 1 || day === 21 || day === 31) suffix = "st";
+    else if (day === 2 || day === 22) suffix = "nd";
+    else if (day === 3 || day === 23) suffix = "rd";
+    return DAYS[d.getDay()] + " " + day + suffix + " " + MONTHS[d.getMonth()] + " " + d.getFullYear();
+  }
+
+  function formatFilterDate(dateStr) {
+    var d = parseDate(dateStr);
+    if (d.getTime() === 0) return dateStr || "";
+    return d.getDate() + " " + MONTHS[d.getMonth()] + " " + d.getFullYear();
   }
 
   function sortSessions(sessions) {
@@ -133,7 +164,7 @@
     dates.forEach(function (d) {
       const opt = document.createElement("option");
       opt.value = d;
-      opt.textContent = d;
+      opt.textContent = formatFilterDate(d);
       $filterDate.appendChild(opt);
     });
 
@@ -187,7 +218,7 @@
     currentSession = session;
     $modalInfo.innerHTML =
       "<strong>Session " + escapeHtml(session.sessionNo) + "</strong><br>" +
-      escapeHtml(session.date) + " &middot; " + escapeHtml(session.timeSlot);
+      escapeHtml(formatDisplayDate(session.date)) + " &middot; " + escapeHtml(session.timeSlot);
     $modal.hidden = false;
     document.body.style.overflow = "hidden";
   }
@@ -264,11 +295,11 @@
       '<div class="card-details">' +
       '  <div class="detail-row">' +
       '    <span class="detail-label">Date</span>' +
-      '    <span class="detail-value">' + escapeHtml(session.date) + "</span>" +
+      '    <span class="detail-value">' + escapeHtml(formatDisplayDate(session.date)) + "</span>" +
       "  </div>" +
       '  <div class="detail-row">' +
       '    <span class="detail-label">Time</span>' +
-      '    <span class="detail-value">' + escapeHtml(session.timeSlot) + "</span>" +
+      '    <span class="detail-value">' + escapeHtml(session.timeSlot || "Not set") + "</span>" +
       "  </div>" +
       notesHtml +
       "</div>" +

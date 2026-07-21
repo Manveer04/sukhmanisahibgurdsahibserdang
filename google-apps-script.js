@@ -1,5 +1,5 @@
 /**
- * Google Apps Script — Session Availability API
+ * Google Apps Script - Session Availability API
  *
  * Reads data from the "Sessions" sheet and returns JSON.
  *
@@ -9,22 +9,33 @@
  * 3. Paste this into Code.gs
  * 4. Save and deploy as Web App
  *
- * Sheet columns (row 1 headers):
+ * Required columns (row 1 headers):
  *   Session No | Date | TimeSlot | Available | Notes
  *
- * Date can be entered as M/D/YYYY (e.g. 7/25/2026).
- * You may add extra columns for internal records — they are ignored by the website.
+ * You may add extra columns for internal records - they are ignored.
+ * Column name matching is case-insensitive and ignores extra spaces.
  */
 
 function formatDate(value) {
+  if (value === "" || value === null || value === undefined) return "";
   if (value instanceof Date) {
     return (value.getMonth() + 1) + "/" + value.getDate() + "/" + value.getFullYear();
   }
-  return String(value || "");
+  return String(value).trim();
+}
+
+function findHeader(headers, name) {
+  var normalised = name.toLowerCase().replace(/\s+/g, "");
+  for (var i = 0; i < headers.length; i++) {
+    if (headers[i].toLowerCase().replace(/\s+/g, "") === normalised) {
+      return headers[i];
+    }
+  }
+  return null;
 }
 
 function doGet() {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sessions");
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sessions");
 
   if (!sheet) {
     return ContentService
@@ -32,7 +43,7 @@ function doGet() {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
-  const data = sheet.getDataRange().getValues();
+  var data = sheet.getDataRange().getValues();
 
   if (data.length <= 1) {
     return ContentService
@@ -40,31 +51,32 @@ function doGet() {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
-  const headers = data[0].map(function (h) {
+  var rawHeaders = data[0].map(function (h) {
     return String(h).trim();
   });
 
-  const sessions = [];
+  var hSessionNo = findHeader(rawHeaders, "Session No") || findHeader(rawHeaders, "SessionNo");
+  var hDate = findHeader(rawHeaders, "Date");
+  var hTimeSlot = findHeader(rawHeaders, "TimeSlot") || findHeader(rawHeaders, "Time Slot");
+  var hAvailable = findHeader(rawHeaders, "Available");
+  var hNotes = findHeader(rawHeaders, "Notes");
 
-  for (let i = 1; i < data.length; i++) {
-    const row = data[i];
+  var sessions = [];
 
-    const isEmpty = row.every(function (cell) {
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+
+    var isEmpty = row.every(function (cell) {
       return cell === "" || cell === null || cell === undefined;
     });
     if (isEmpty) continue;
 
-    const obj = {};
-    for (let j = 0; j < headers.length; j++) {
-      obj[headers[j]] = row[j];
-    }
-
     var session = {
-      sessionNo: String(obj["Session No"] || i),
-      date: formatDate(obj["Date"]),
-      timeSlot: String(obj["TimeSlot"] || ""),
-      available: obj["Available"] === true || String(obj["Available"]).toUpperCase() === "TRUE",
-      notes: String(obj["Notes"] || ""),
+      sessionNo: String(hSessionNo ? row[rawHeaders.indexOf(hSessionNo)] : (i)),
+      date: hDate ? formatDate(row[rawHeaders.indexOf(hDate)]) : "",
+      timeSlot: hTimeSlot ? String(row[rawHeaders.indexOf(hTimeSlot)] || "").trim() : "",
+      available: hAvailable ? (row[rawHeaders.indexOf(hAvailable)] === true || String(row[rawHeaders.indexOf(hAvailable)]).toUpperCase() === "TRUE") : false,
+      notes: hNotes ? String(row[rawHeaders.indexOf(hNotes)] || "").trim() : "",
     };
 
     sessions.push(session);
