@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Check session availability and book via WhatsApp">
+  <title>Session Availability</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">S</div>
+        <div class="brand-text">
+          <h1>Serdang Booking</h1>
+          <span class="subtitle">Session Availability</span>
+        </div>
+      </div>
+      <div class="header-meta">
+        <span id="last-updated" class="last-updated">Last updated: --:--:--</span>
+        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <span class="icon-sun">&#9788;</span>
+          <span class="icon-moon">&#9790;</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Loading sessions...</p>
+    </div>
+
+    <div id="error" class="error-state" hidden>
+      <div class="error-icon">&#9888;</div>
+      <p>Unable to load latest session information.</p>
+      <p class="error-sub">Please try again later.</p>
+    </div>
+
+    <div id="no-sessions" class="empty-state" hidden>
+      <div class="empty-icon">&#128197;</div>
+      <p>No sessions available at the moment.</p>
+    </div>
+
+    <div id="sessions-grid" class="sessions-grid" hidden></div>
+  </main>
+
+  <footer class="footer">
+    <p>Bookings are subject to confirmation. Changes are updated in real-time.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
