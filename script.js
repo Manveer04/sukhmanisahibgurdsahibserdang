@@ -49,6 +49,9 @@
   const $modal = document.getElementById("whatsapp-modal");
   const $modalClose = document.getElementById("modal-close");
   const $modalInfo = document.getElementById("modal-session-info");
+  const $qrModal = document.getElementById("qr-modal");
+  const $qrModalClose = document.getElementById("qr-modal-close");
+  const $btnShowQr = document.getElementById("btn-show-qr");
 
   // ========================================
   // STATE
@@ -242,6 +245,16 @@
     currentSession = null;
   }
 
+  function openQrModal() {
+    $qrModal.hidden = false;
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeQrModal() {
+    $qrModal.hidden = true;
+    document.body.style.overflow = "";
+  }
+
   function handleContactClick(contact) {
     if (!currentSession) return;
     const msg = buildBookingMessage(currentSession);
@@ -417,7 +430,17 @@
       if (e.target === $modal) closeModal();
     });
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && !$modal.hidden) closeModal();
+      if (e.key === "Escape") {
+        if (!$qrModal.hidden) closeQrModal();
+        else if (!$modal.hidden) closeModal();
+      }
+    });
+
+    // QR modal
+    $btnShowQr.addEventListener("click", openQrModal);
+    $qrModalClose.addEventListener("click", closeQrModal);
+    $qrModal.addEventListener("click", function (e) {
+      if (e.target === $qrModal) closeQrModal();
     });
 
     // Contact buttons
