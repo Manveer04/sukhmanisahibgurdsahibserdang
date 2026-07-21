@@ -11,7 +11,17 @@
  *
  * Sheet columns (row 1 headers):
  *   Session No | Date | TimeSlot | Available | Notes
+ *
+ * Date can be entered as M/D/YYYY (e.g. 7/25/2026).
+ * You may add extra columns for internal records — they are ignored by the website.
  */
+
+function formatDate(value) {
+  if (value instanceof Date) {
+    return (value.getMonth() + 1) + "/" + value.getDate() + "/" + value.getFullYear();
+  }
+  return String(value || "");
+}
 
 function doGet() {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sessions");
@@ -49,13 +59,15 @@ function doGet() {
       obj[headers[j]] = row[j];
     }
 
-    sessions.push({
+    var session = {
       sessionNo: String(obj["Session No"] || i),
-      date: String(obj["Date"] || ""),
+      date: formatDate(obj["Date"]),
       timeSlot: String(obj["TimeSlot"] || ""),
       available: obj["Available"] === true || String(obj["Available"]).toUpperCase() === "TRUE",
       notes: String(obj["Notes"] || ""),
-    });
+    };
+
+    sessions.push(session);
   }
 
   return ContentService

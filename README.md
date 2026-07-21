@@ -42,20 +42,21 @@ booking-site/
 2. Rename the sheet tab (at the bottom) to **Sessions**.
 3. Add these column headers in row 1:
 
-| Session No | Date | TimeSlot | Available | Notes |
-|------------|------|----------|-----------|-------|
-| 1 | 22 July 2026 | 9-11am | TRUE | |
-| 2 | 22 July 2026 | 12-2pm | FALSE | Reserved |
-| 3 | 22 July 2026 | 3-5pm | TRUE | |
-| 4 | 25 July 2026 | 9-11am | TRUE | |
+| Session No | Date | TimeSlot | Available | Notes | Location |
+|------------|------|----------|-----------|-------|----------|
+| 1 | 7/25/2026 | 9-11am | TRUE | | Hall A |
+| 2 | 7/25/2026 | 12-2pm | FALSE | Reserved | |
+| 3 | 7/25/2026 | 3-5pm | TRUE | | Hall B |
+| 4 | 7/28/2026 | 9-11am | TRUE | | |
 
 **Rules for staff:**
 
 - `Session No`: Simple number (1, 2, 3, etc.)
-- `Date`: Format as `DD Month YYYY` (e.g., `22 July 2026`)
+- `Date`: Format as `M/D/YYYY` (e.g., `7/25/2026` for 25 July 2026)
 - `TimeSlot`: Must be exactly one of: `9-11am`, `12-2pm`, `3-5pm`
 - `Available`: `TRUE` or `FALSE`
 - `Notes`: Optional text shown on the card
+- **Extra columns**: You can add any additional columns after Notes for internal records (e.g., `Location`, `Instructor`, `Price`). These will not appear on the website.
 
 ---
 

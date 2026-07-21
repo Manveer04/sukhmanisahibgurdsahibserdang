@@ -85,22 +85,15 @@
   // DATE SORTING
   // ========================================
 
-  const MONTH_MAP = {
-    January: 0, February: 1, March: 2, April: 3, May: 4, June: 5,
-    July: 6, August: 7, September: 8, October: 9, November: 10, December: 11,
-    Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
-    Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11,
-  };
-
   const TIME_ORDER = { "9-11am": 0, "12-2pm": 1, "3-5pm": 2 };
 
   function parseDate(dateStr) {
-    const parts = dateStr.trim().split(" ");
+    const parts = dateStr.trim().split("/");
     if (parts.length !== 3) return new Date(0);
-    const day = parseInt(parts[0], 10);
-    const month = MONTH_MAP[parts[1]];
+    const month = parseInt(parts[0], 10) - 1;
+    const day = parseInt(parts[1], 10);
     const year = parseInt(parts[2], 10);
-    if (isNaN(day) || month === undefined || isNaN(year)) return new Date(0);
+    if (isNaN(month) || isNaN(day) || isNaN(year)) return new Date(0);
     return new Date(year, month, day);
   }
 
