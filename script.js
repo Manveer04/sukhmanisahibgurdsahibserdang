@@ -2,7 +2,8 @@
  * Session Availability - Frontend Logic
  *
  * Fetches session data from a Google Apps Script endpoint,
- * renders session cards, and handles WhatsApp redirect.
+ * renders session cards with filters, and handles WhatsApp redirect
+ * via a contact chooser modal.
  */
 
 (function () {
@@ -12,10 +13,25 @@
   // CONFIGURATION
   // ========================================
 
-  // Replace this with your deployed Google Apps Script Web App URL
-  const API_URL = "https://script.google.com/macros/s/AKfycbxF4XP8dbiJwv6D5U3mG_9woUAJrUVIytDYhMcqPad1LV99d2U_GUJWF0tR3rWHvNHB/exec";
-
+  const API_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
   const REFRESH_INTERVAL = 30000;
+
+  const CONTACTS = [
+    {
+      name: "Balwant Singh",
+      role: "President",
+      phone: "60162471757",
+      display: "+6016-2471757",
+    },
+    {
+      name: "Giani Sajanpreet Singh",
+      role: "Giani",
+      phone: "601121324736",
+      display: "+6011-21324736",
+    },
+  ];
+
+  const WHATSAPP_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>';
 
   // ========================================
   // DOM REFERENCES
@@ -27,13 +43,20 @@
   const $grid = document.getElementById("sessions-grid");
   const $lastUpdated = document.getElementById("last-updated");
   const $themeToggle = document.getElementById("theme-toggle");
+  const $filterDate = document.getElementById("filter-date");
+  const $filterTime = document.getElementById("filter-time");
+  const $filterAvailable = document.getElementById("filter-available");
+  const $modal = document.getElementById("whatsapp-modal");
+  const $modalClose = document.getElementById("modal-close");
+  const $modalInfo = document.getElementById("modal-session-info");
 
   // ========================================
   // STATE
   // ========================================
 
+  let allSessions = [];
   let previousData = null;
-  let refreshTimer = null;
+  let currentSession = null;
 
   // ========================================
   // DARK MODE
@@ -59,15 +82,19 @@
   }
 
   // ========================================
-  // DATE / TIME SORTING
+  // DATE SORTING
   // ========================================
 
   const MONTH_MAP = {
+    January: 0, February: 1, March: 2, April: 3, May: 4, June: 5,
+    July: 6, August: 7, September: 8, October: 9, November: 10, December: 11,
     Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
     Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11,
   };
 
-  function parseSheetDate(dateStr) {
+  const TIME_ORDER = { "9-11am": 0, "12-2pm": 1, "3-5pm": 2 };
+
+  function parseDate(dateStr) {
     const parts = dateStr.trim().split(" ");
     if (parts.length !== 3) return new Date(0);
     const day = parseInt(parts[0], 10);
@@ -77,47 +104,113 @@
     return new Date(year, month, day);
   }
 
-  function parseSheetTime(timeStr) {
-    const match = timeStr.trim().match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
-    if (!match) return 0;
-    let hours = parseInt(match[1], 10);
-    const minutes = parseInt(match[2], 10);
-    const period = match[3].toUpperCase();
-    if (period === "PM" && hours !== 12) hours += 12;
-    if (period === "AM" && hours === 12) hours = 0;
-    return hours * 60 + minutes;
-  }
-
   function sortSessions(sessions) {
-    return [...sessions].sort((a, b) => {
-      const dateA = parseSheetDate(a.date);
-      const dateB = parseSheetDate(b.date);
+    return [...sessions].sort(function (a, b) {
+      const dateA = parseDate(a.date);
+      const dateB = parseDate(b.date);
       if (dateA.getTime() !== dateB.getTime()) {
         return dateA.getTime() - dateB.getTime();
       }
-      return parseSheetTime(a.time) - parseSheetTime(b.time);
+      const timeA = TIME_ORDER[a.timeSlot] !== undefined ? TIME_ORDER[a.timeSlot] : 99;
+      const timeB = TIME_ORDER[b.timeSlot] !== undefined ? TIME_ORDER[b.timeSlot] : 99;
+      return timeA - timeB;
     });
   }
 
   // ========================================
-  // WHATSAPP URL
+  // FILTERS
   // ========================================
 
-  function buildWhatsAppUrl(session) {
-    const phone = session.whatsapp.replace(/[^0-9]/g, "");
-    const message = [
+  function populateDateFilter(sessions) {
+    const dates = [];
+    const seen = {};
+    sessions.forEach(function (s) {
+      if (!seen[s.date]) {
+        seen[s.date] = true;
+        dates.push(s.date);
+      }
+    });
+
+    dates.sort(function (a, b) {
+      return parseDate(a).getTime() - parseDate(b).getTime();
+    });
+
+    const current = $filterDate.value;
+    $filterDate.innerHTML = '<option value="all">All Dates</option>';
+    dates.forEach(function (d) {
+      const opt = document.createElement("option");
+      opt.value = d;
+      opt.textContent = d;
+      $filterDate.appendChild(opt);
+    });
+
+    // Restore previous selection if still valid
+    if (current && current !== "all") {
+      const stillExists = dates.indexOf(current) !== -1;
+      $filterDate.value = stillExists ? current : "all";
+    }
+  }
+
+  function getFilteredSessions() {
+    const dateVal = $filterDate.value;
+    const timeVal = $filterTime.value;
+    const availOnly = $filterAvailable.checked;
+
+    return sortSessions(allSessions).filter(function (s) {
+      if (dateVal !== "all" && s.date !== dateVal) return false;
+      if (timeVal !== "all" && s.timeSlot !== timeVal) return false;
+      if (availOnly && !s.available) return false;
+      return true;
+    });
+  }
+
+  // ========================================
+  // WHATSAPP
+  // ========================================
+
+  function buildWhatsAppUrl(phone, message) {
+    return "https://wa.me/" + phone + "?text=" + encodeURIComponent(message);
+  }
+
+  function buildBookingMessage(session) {
+    return [
       "Hello,",
       "",
       "I would like to book the following session.",
       "",
-      "Session: " + session.session,
+      "Session No: " + session.sessionNo,
       "Date: " + session.date,
-      "Time: " + session.time,
+      "Time: " + session.timeSlot,
       "",
       "Thank you.",
     ].join("\n");
+  }
 
-    return "https://wa.me/" + phone + "?text=" + encodeURIComponent(message);
+  // ========================================
+  // MODAL
+  // ========================================
+
+  function openModal(session) {
+    currentSession = session;
+    $modalInfo.innerHTML =
+      "<strong>Session " + escapeHtml(session.sessionNo) + "</strong><br>" +
+      escapeHtml(session.date) + " &middot; " + escapeHtml(session.timeSlot);
+    $modal.hidden = false;
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeModal() {
+    $modal.hidden = true;
+    document.body.style.overflow = "";
+    currentSession = null;
+  }
+
+  function handleContactClick(contact) {
+    if (!currentSession) return;
+    const msg = buildBookingMessage(currentSession);
+    const url = buildWhatsAppUrl(contact.phone, msg);
+    window.open(url, "_blank", "noopener noreferrer");
+    closeModal();
   }
 
   // ========================================
@@ -145,14 +238,12 @@
     return div.innerHTML;
   }
 
-  const WHATSAPP_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>';
-
   function createSessionCard(session) {
     const card = document.createElement("div");
     card.className = "session-card fade-in";
-    card.setAttribute("data-session", session.session);
+    card.setAttribute("data-session", session.sessionNo);
 
-    const isAvailable = session.available === true;
+    const isAvailable = session.available;
     const badgeClass = isAvailable ? "badge-available" : "badge-booked";
     const badgeText = isAvailable ? "\u{1F7E2} Available" : "\u{1F534} Booked";
 
@@ -161,13 +252,20 @@
       notesHtml = '<div class="notes-row">' + escapeHtml(session.notes) + "</div>";
     }
 
-    const btnDisabled = isAvailable ? "" : " disabled";
+    let actionsHtml;
+    if (isAvailable) {
+      actionsHtml =
+        '<button class="btn-whatsapp" data-session-id="' + escapeHtml(String(session.sessionNo)) + '">' +
+        WHATSAPP_SVG +
+        "    Book via WhatsApp" +
+        "  </button>";
+    } else {
+      actionsHtml = '<div class="booked-label">This session is fully booked</div>';
+    }
 
     card.innerHTML =
       '<div class="card-header">' +
-      '  <span class="session-number">Session ' +
-         escapeHtml(String(session.session)) +
-      "</span>" +
+      '  <span class="session-number">Session ' + escapeHtml(session.sessionNo) + "</span>" +
       '  <span class="badge ' + badgeClass + '">' + badgeText + "</span>" +
       "</div>" +
       '<div class="card-details">' +
@@ -177,34 +275,27 @@
       "  </div>" +
       '  <div class="detail-row">' +
       '    <span class="detail-label">Time</span>' +
-      '    <span class="detail-value">' + escapeHtml(session.time) + "</span>" +
-      "  </div>" +
-      '  <div class="detail-row">' +
-      '    <span class="detail-label">Contact</span>' +
-      '    <span class="detail-value">' + escapeHtml(session.contact) + "</span>" +
+      '    <span class="detail-value">' + escapeHtml(session.timeSlot) + "</span>" +
       "  </div>" +
       notesHtml +
       "</div>" +
       '<div class="card-actions">' +
-      '  <a class="btn-whatsapp" href="' + buildWhatsAppUrl(session) +
-      '" target="_blank" rel="noopener noreferrer"' + btnDisabled + ">" +
-      WHATSAPP_SVG + "    Book via WhatsApp" +
-      "  </a>" +
+      actionsHtml +
       "</div>";
 
     return card;
   }
 
-  function renderSessions(sessions) {
+  function renderSessions() {
     $grid.innerHTML = "";
+    const filtered = getFilteredSessions();
 
-    if (sessions.length === 0) {
+    if (filtered.length === 0) {
       showView("no-sessions");
       return;
     }
 
-    const sorted = sortSessions(sessions);
-    sorted.forEach(function (session) {
+    filtered.forEach(function (session) {
       $grid.appendChild(createSessionCard(session));
     });
 
@@ -236,30 +327,32 @@
 
       const data = await response.json();
 
-      const sessions = data.map(function (item) {
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      allSessions = data.map(function (item) {
         return {
-          session: item.session,
+          sessionNo: String(item.sessionNo || ""),
           date: item.date || "",
-          time: item.time || "",
+          timeSlot: item.timeSlot || "",
           available:
             item.available === true ||
             item.available === "TRUE" ||
             item.available === "true",
-          contact: item.contact || item.ContactPerson || "",
-          whatsapp: item.whatsapp || item.WhatsAppNumber || "",
-          notes: item.notes || item.Notes || "",
+          notes: item.notes || "",
         };
       });
 
-      if (dataHasChanged(sessions)) {
-        renderSessions(sessions);
-        previousData = sessions;
+      if (dataHasChanged(allSessions)) {
+        populateDateFilter(allSessions);
+        renderSessions();
+        previousData = allSessions;
       }
 
       updateTimestamp();
     } catch (err) {
       console.error("Fetch error:", err);
-
       if (!previousData) {
         showView("error");
       }
@@ -273,11 +366,47 @@
   function init() {
     initTheme();
 
+    // Theme toggle
     $themeToggle.addEventListener("click", toggleTheme);
 
-    fetchSessions();
+    // Filter listeners
+    $filterDate.addEventListener("change", renderSessions);
+    $filterTime.addEventListener("change", renderSessions);
+    $filterAvailable.addEventListener("change", renderSessions);
 
-    refreshTimer = setInterval(fetchSessions, REFRESH_INTERVAL);
+    // Modal close
+    $modalClose.addEventListener("click", closeModal);
+    $modal.addEventListener("click", function (e) {
+      if (e.target === $modal) closeModal();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !$modal.hidden) closeModal();
+    });
+
+    // Contact buttons
+    document.getElementById("contact-balwant").addEventListener("click", function () {
+      handleContactClick(CONTACTS[0]);
+    });
+    document.getElementById("contact-sajanpreet").addEventListener("click", function () {
+      handleContactClick(CONTACTS[1]);
+    });
+
+    // WhatsApp button delegation
+    $grid.addEventListener("click", function (e) {
+      const btn = e.target.closest(".btn-whatsapp");
+      if (!btn) return;
+      const sessionNo = btn.getAttribute("data-session-id");
+      const session = allSessions.find(function (s) {
+        return s.sessionNo === sessionNo;
+      });
+      if (session && session.available) {
+        openModal(session);
+      }
+    });
+
+    // Initial fetch + auto-refresh
+    fetchSessions();
+    setInterval(fetchSessions, REFRESH_INTERVAL);
   }
 
   if (document.readyState === "loading") {

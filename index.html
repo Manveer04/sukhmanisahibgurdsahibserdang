@@ -29,6 +29,34 @@
   </header>
 
   <main class="main">
+
+    <div class="filters" id="filters">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label for="filter-date">Date</label>
+          <select id="filter-date">
+            <option value="all">All Dates</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filter-time">Time Slot</label>
+          <select id="filter-time">
+            <option value="all">All Slots</option>
+            <option value="9-11am">9-11am</option>
+            <option value="12-2pm">12-2pm</option>
+            <option value="3-5pm">3-5pm</option>
+          </select>
+        </div>
+        <div class="filter-group filter-toggle-group">
+          <label class="toggle-label">
+            <input type="checkbox" id="filter-available" checked>
+            <span class="toggle-switch"></span>
+            <span class="toggle-text">Available only</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
     <div id="loading" class="loading">
       <div class="spinner"></div>
       <p>Loading sessions...</p>
@@ -42,11 +70,44 @@
 
     <div id="no-sessions" class="empty-state" hidden>
       <div class="empty-icon">&#128197;</div>
-      <p>No sessions available at the moment.</p>
+      <p>No sessions found.</p>
     </div>
 
     <div id="sessions-grid" class="sessions-grid" hidden></div>
   </main>
+
+  <div id="whatsapp-modal" class="modal-overlay" hidden>
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Book via WhatsApp</h2>
+        <button id="modal-close" class="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-session-info" id="modal-session-info"></p>
+        <p class="modal-prompt">Choose who to contact:</p>
+        <div class="contact-list">
+          <button class="contact-btn" id="contact-balwant">
+            <span class="contact-icon">BS</span>
+            <div class="contact-details">
+              <span class="contact-name">Balwant Singh</span>
+              <span class="contact-role">President</span>
+              <span class="contact-phone">+6016-2471757</span>
+            </div>
+            <span class="contact-arrow">&#8250;</span>
+          </button>
+          <button class="contact-btn" id="contact-sajanpreet">
+            <span class="contact-icon">GS</span>
+            <div class="contact-details">
+              <span class="contact-name">Giani Sajanpreet Singh</span>
+              <span class="contact-role">Giani</span>
+              <span class="contact-phone">+6011-21324736</span>
+            </div>
+            <span class="contact-arrow">&#8250;</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <footer class="footer">
     <p>Bookings are subject to confirmation. Changes are updated in real-time.</p>

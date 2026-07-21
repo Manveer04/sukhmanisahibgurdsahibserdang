@@ -1,14 +1,16 @@
 /**
  * Google Apps Script — Session Availability API
  *
- * This script reads data from the "Sessions" sheet
- * and returns it as JSON via a Web App endpoint.
+ * Reads data from the "Sessions" sheet and returns JSON.
  *
  * SETUP:
  * 1. Open your Google Sheet
  * 2. Go to Extensions > Apps Script
- * 3. Paste this entire file into Code.gs
- * 4. Save and deploy as a Web App
+ * 3. Paste this into Code.gs
+ * 4. Save and deploy as Web App
+ *
+ * Sheet columns (row 1 headers):
+ *   Session No | Date | TimeSlot | Available | Notes
  */
 
 function doGet() {
@@ -37,7 +39,6 @@ function doGet() {
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
 
-    // Skip completely empty rows
     const isEmpty = row.every(function (cell) {
       return cell === "" || cell === null || cell === undefined;
     });
@@ -49,12 +50,10 @@ function doGet() {
     }
 
     sessions.push({
-      session: obj["Session"] || i,
+      sessionNo: String(obj["Session No"] || i),
       date: String(obj["Date"] || ""),
-      time: String(obj["Time"] || ""),
+      timeSlot: String(obj["TimeSlot"] || ""),
       available: obj["Available"] === true || String(obj["Available"]).toUpperCase() === "TRUE",
-      contact: String(obj["ContactPerson"] || ""),
-      whatsapp: String(obj["WhatsAppNumber"] || ""),
       notes: String(obj["Notes"] || ""),
     });
   }

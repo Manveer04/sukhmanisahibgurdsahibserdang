@@ -1,6 +1,6 @@
 # Serdang Booking — Session Availability
 
-A lightweight, mobile-friendly website that displays session availability and lets users request bookings via WhatsApp. Data is managed entirely through a Google Sheet — no code changes required to update sessions.
+A lightweight, mobile-friendly website that displays session availability and lets users request bookings via WhatsApp. Data is managed entirely through a Google Sheet.
 
 ---
 
@@ -18,11 +18,6 @@ Google Apps Script (Web App)
     v
 Google Sheets ("Sessions" tab)
 ```
-
-- **Frontend**: HTML + CSS + Vanilla JavaScript
-- **Data Store**: Google Sheets (edited by staff)
-- **API**: Google Apps Script exposing a JSON endpoint
-- **Hosting**: GitHub Pages (free)
 
 ---
 
@@ -47,16 +42,20 @@ booking-site/
 2. Rename the sheet tab (at the bottom) to **Sessions**.
 3. Add these column headers in row 1:
 
-| Session | Date | Time | Available | ContactPerson | WhatsAppNumber | Notes |
-|---------|------|------|-----------|---------------|----------------|-------|
-| 1 | 25 Jul 2026 | 10:00 AM | TRUE | Alice | 60123456789 | |
-| 2 | 25 Jul 2026 | 2:00 PM | FALSE | Bob | 60198765432 | Reserved |
+| Session No | Date | TimeSlot | Available | Notes |
+|------------|------|----------|-----------|-------|
+| 1 | 22 July 2026 | 9-11am | TRUE | |
+| 2 | 22 July 2026 | 12-2pm | FALSE | Reserved |
+| 3 | 22 July 2026 | 3-5pm | TRUE | |
+| 4 | 25 July 2026 | 9-11am | TRUE | |
 
 **Rules for staff:**
-- `Available` must be `TRUE` or `FALSE` (not Yes/No).
-- `Date` format: `DD Mon YYYY` (e.g., `25 Jul 2026`).
-- `Time` format: `HH:MM AM/PM` (e.g., `10:00 AM`).
-- `WhatsAppNumber` should include country code with no spaces or dashes (e.g., `60123456789`).
+
+- `Session No`: Simple number (1, 2, 3, etc.)
+- `Date`: Format as `DD Month YYYY` (e.g., `22 July 2026`)
+- `TimeSlot`: Must be exactly one of: `9-11am`, `12-2pm`, `3-5pm`
+- `Available`: `TRUE` or `FALSE`
+- `Notes`: Optional text shown on the card
 
 ---
 
@@ -78,13 +77,11 @@ booking-site/
    - **Execute as**: `Me`
    - **Who has access**: `Anyone`
 4. Click **Deploy**.
-5. **Copy the Web App URL** — it looks like:
+5. **Copy the Web App URL** -- it looks like:
    ```
    https://script.google.com/macros/s/AKfycbx.../exec
    ```
 6. Click **Done**.
-
-> **Important**: Every time you change who has access, you must create a new deployment.
 
 ---
 
@@ -122,11 +119,11 @@ booking-site/
 ### Step 6: Verify Everything Works
 
 1. Open the live website URL in your browser.
-2. Confirm that the sessions from your Google Sheet are displayed.
+2. Confirm that sessions from your Google Sheet are displayed.
 3. Edit a session in the Google Sheet (change `Available` from `TRUE` to `FALSE`).
-4. Wait up to 30 seconds — the site auto-refreshes.
+4. Wait up to 30 seconds -- the site auto-refreshes.
 5. Confirm the change appears on the website.
-6. Click a **Book via WhatsApp** button and verify the pre-filled message opens correctly.
+6. Click **Book via WhatsApp** on an available session, choose a contact, and verify the pre-filled message opens in WhatsApp.
 
 ---
 
@@ -140,13 +137,23 @@ booking-site/
 4. Optionally update the `Notes` column.
 5. Changes appear on the website within 30 seconds.
 
-That is all. No code changes. No redeployment.
+---
+
+## Features
+
+- **Filter by date** -- dropdown populates automatically from sheet data
+- **Filter by time slot** -- 9-11am, 12-2pm, 3-5pm
+- **Available only toggle** -- default ON, hides booked sessions
+- **Contact chooser** -- user picks Balwant Singh (President) or Giani Sajanpreet Singh before WhatsApp opens
+- **Dark mode** -- respects system preference, toggle in header
+- **Auto-refresh** -- every 30 seconds
+- **Mobile-first** -- responsive grid (1/2/3 columns)
 
 ---
 
 ## Customisation
 
-### Change the Company Name
+### Change Company Name
 
 In `index.html`, edit:
 ```html
@@ -154,20 +161,26 @@ In `index.html`, edit:
 <span class="subtitle">Session Availability</span>
 ```
 
-### Change the Logo
+### Change WhatsApp Contacts
 
-In `style.css`, the `.logo` class controls the logo appearance. Replace with an `<img>` tag in `index.html` if needed.
-
-### Change the Auto-Refresh Interval
-
-In `script.js`, change:
+In `script.js`, edit the `CONTACTS` array:
 ```js
-const REFRESH_INTERVAL = 30000; // 30 seconds
+const CONTACTS = [
+  { name: "Balwant Singh", role: "President", phone: "60162471757", display: "+6016-2471757" },
+  { name: "Giani Sajanpreet Singh", role: "Giani", phone: "601121324736", display: "+6011-21324736" },
+];
 ```
 
 ### Change WhatsApp Message Format
 
-In `script.js`, edit the `buildWhatsAppUrl` function.
+In `script.js`, edit the `buildBookingMessage` function.
+
+### Change Auto-Refresh Interval
+
+In `script.js`:
+```js
+const REFRESH_INTERVAL = 30000; // 30 seconds
+```
 
 ---
 
@@ -182,19 +195,14 @@ In `script.js`, edit the `buildWhatsAppUrl` function.
 
 ### Sessions not updating
 
-- Google Apps Script may cache results for a few minutes. This is normal.
+- Google Apps Script may cache results for a few minutes.
 - Verify the sheet name is exactly `Sessions`.
-- Check that `Available` values are `TRUE` or `FALSE` (not `True`/`False`).
+- Check that `Available` values are `TRUE` or `FALSE`.
 
 ### WhatsApp button not working
 
-- Ensure `WhatsAppNumber` includes the country code (e.g., `60123456789`).
-- Remove any spaces, dashes, or special characters from the number.
-
-### Dark mode not working
-
-- The site respects your system's dark/light preference by default.
-- Click the sun/moon toggle in the header to override.
+- Ensure `TimeSlot` is one of the three valid values.
+- The contact chooser should appear when clicking Book via WhatsApp.
 
 ---
 
@@ -203,16 +211,3 @@ In `script.js`, edit the `buildWhatsAppUrl` function.
 - The Google Sheet is **not** publicly accessible.
 - Data is only served through the Apps Script Web App endpoint.
 - No API keys or secrets are exposed in the frontend.
-- The Apps Script runs with your Google account permissions but only reads data.
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Frontend | HTML5, CSS3, Vanilla JS (ES6) |
-| API | Google Apps Script |
-| Database | Google Sheets |
-| Hosting | GitHub Pages |
-| Version Control | Git / GitHub |
