@@ -192,21 +192,34 @@
   // WHATSAPP
   // ========================================
 
+  var TIME_DISPLAY = {
+    "9-11am": "9:00\u201311:00 a.m.",
+    "12-2pm": "12:00\u20132:00 p.m.",
+    "3-5pm": "3:00\u20135:00 p.m.",
+  };
+
+  function formatMessageDate(dateStr) {
+    var d = parseDate(dateStr);
+    if (d.getTime() === 0) return dateStr || "";
+    return d.getDate() + " " + MONTHS[d.getMonth()] + " " + d.getFullYear();
+  }
+
   function buildWhatsAppUrl(phone, message) {
     return "https://wa.me/" + phone + "?text=" + encodeURIComponent(message);
   }
 
   function buildBookingMessage(session) {
+    var displayTime = TIME_DISPLAY[session.timeSlot] || session.timeSlot;
     return [
-      "Hello,",
+      "WJKK, WJKF \uD83D\uDE4F",
       "",
-      "I would like to book the following session.",
+      "I would like to book the following Sukhmani Sahib session:",
       "",
-      "Session No: " + session.sessionNo,
-      "Date: " + session.date,
-      "Time: " + session.timeSlot,
+      "Session No.: " + session.sessionNo,
+      "Date: " + formatMessageDate(session.date),
+      "Time: " + displayTime,
       "",
-      "Thank you.",
+      "Please let me know whether this slot is still available. Thank you.",
     ].join("\n");
   }
 
