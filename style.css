@@ -1,65 +1,29 @@
 /* ============================================
-   CSS Variables — Light & Dark Mode
+   CSS Variables — Nishan Sahib Navy & Saffron
    ============================================ */
 :root {
-  --bg-primary: #fdf6ec;
-  --bg-secondary: rgba(255, 255, 255, 0.88);
-  --bg-card: rgba(255, 255, 255, 0.92);
-  --text-primary: #2d1b0e;
-  --text-secondary: #5c4a3a;
-  --text-muted: #8c7a6a;
-  --border: rgba(180, 150, 110, 0.3);
-  --shadow: 0 2px 12px rgba(120, 80, 20, 0.08);
-  --shadow-hover: 0 6px 24px rgba(120, 80, 20, 0.14);
-  --green: #22c55e;
-  --green-bg: #f0fdf4;
-  --green-border: #bbf7d0;
-  --red: #ef4444;
-  --red-bg: #fef2f2;
-  --red-border: #fecaca;
-  --blue: #b8860b;
-  --blue-hover: #9a7209;
+  --bg-primary: #081426;
+  --bg-secondary: rgba(13, 30, 54, 0.92);
+  --bg-card: rgba(19, 42, 70, 0.95);
+  --bg-highlight: #102C57;
+  --text-primary: #FFF8E8;
+  --text-secondary: #C8BDA6;
+  --text-muted: #8a7e6e;
+  --border: #29496B;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+  --shadow-hover: 0 6px 24px rgba(0, 0, 0, 0.35);
+  --green: #2BCB78;
+  --green-bg: rgba(43, 203, 120, 0.12);
+  --green-border: rgba(43, 203, 120, 0.3);
+  --red: #FF6B5E;
+  --red-bg: rgba(255, 107, 94, 0.12);
+  --red-border: rgba(255, 107, 94, 0.3);
+  --accent: #F4A51C;
+  --accent-hover: #FFB72B;
+  --accent-secondary: #1D5FA7;
   --radius: 12px;
   --radius-sm: 8px;
   --transition: 0.25s ease;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-primary: #1a120a;
-    --bg-secondary: rgba(30, 24, 16, 0.88);
-    --bg-card: rgba(35, 28, 18, 0.92);
-    --text-primary: #f5ead8;
-    --text-secondary: #c4a882;
-    --text-muted: #8a7460;
-    --border: rgba(180, 150, 110, 0.25);
-    --shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-    --shadow-hover: 0 6px 24px rgba(0, 0, 0, 0.4);
-    --green-bg: #052e16;
-    --green-border: #166534;
-    --red-bg: #450a0a;
-    --red-border: #7f1d1d;
-    --blue: #d4a843;
-    --blue-hover: #b8922e;
-  }
-}
-
-body.dark {
-  --bg-primary: #1a120a;
-  --bg-secondary: rgba(30, 24, 16, 0.88);
-  --bg-card: rgba(35, 28, 18, 0.92);
-  --text-primary: #f5ead8;
-  --text-secondary: #c4a882;
-  --text-muted: #8a7460;
-  --border: rgba(180, 150, 110, 0.25);
-  --shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-  --shadow-hover: 0 6px 24px rgba(0, 0, 0, 0.4);
-  --green-bg: #052e16;
-  --green-border: #166534;
-  --red-bg: #450a0a;
-  --red-border: #7f1d1d;
-  --blue: #d4a843;
-  --blue-hover: #b8922e;
 }
 
 /* ============================================
@@ -103,11 +67,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(253, 246, 236, 0.6);
-}
-
-body.dark .bg-blur::after {
-  background: rgba(26, 18, 10, 0.7);
+  background: rgba(8, 20, 38, 0.75);
 }
 
 /* ============================================
@@ -210,15 +170,6 @@ body.dark .icon-moon {
   display: inline;
 }
 
-@media (prefers-color-scheme: dark) {
-  .icon-sun {
-    display: none;
-  }
-  .icon-moon {
-    display: inline;
-  }
-}
-
 /* ============================================
    Filters
    ============================================ */
@@ -260,14 +211,14 @@ body.dark .icon-moon {
   font-family: inherit;
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23C8BDA6' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   transition: border var(--transition);
 }
 
 .filter-group select:focus {
-  outline: 2px solid var(--blue);
+  outline: 2px solid var(--accent);
   outline-offset: -1px;
 }
 
@@ -308,14 +259,14 @@ body.dark .icon-moon {
   left: 3px;
   width: 18px;
   height: 18px;
-  background: #fff;
+  background: #FFF8E8;
   border-radius: 50%;
   transition: transform var(--transition);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .toggle-label input:checked + .toggle-switch {
-  background: var(--blue);
+  background: var(--accent);
 }
 
 .toggle-label input:checked + .toggle-switch::after {
@@ -367,7 +318,7 @@ body.dark .icon-moon {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--blue);
+  color: var(--accent);
   margin-bottom: 12px;
 }
 
@@ -456,7 +407,7 @@ body.dark .icon-moon {
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--green), #16a34a);
+  background: linear-gradient(90deg, var(--accent), var(--accent-hover));
   border-radius: 5px;
   transition: width 0.6s ease;
 }
@@ -527,7 +478,7 @@ body.dark .icon-moon {
   width: 40px;
   height: 40px;
   border: 3px solid var(--border);
-  border-top-color: var(--blue);
+  border-top-color: var(--accent);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -702,8 +653,8 @@ body.dark .icon-moon {
   gap: 8px;
   width: 100%;
   padding: 12px 20px;
-  background: var(--blue);
-  color: #fff;
+  background: var(--accent);
+  color: var(--bg-primary);
   border: none;
   border-radius: var(--radius-sm);
   font-size: 0.95rem;
@@ -714,7 +665,7 @@ body.dark .icon-moon {
 }
 
 .btn-whatsapp:hover {
-  background: var(--blue-hover);
+  background: var(--accent-hover);
 }
 
 .btn-whatsapp:active {
@@ -747,7 +698,7 @@ body.dark .icon-moon {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(4, 10, 20, 0.6);
   z-index: 200;
   display: flex;
   align-items: center;
@@ -762,7 +713,7 @@ body.dark .icon-moon {
   border-radius: var(--radius);
   width: 100%;
   max-width: 440px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 20px 60px rgba(4, 10, 20, 0.4);
   animation: modalSlide 0.25s ease;
 }
 
@@ -847,15 +798,15 @@ body.dark .icon-moon {
 }
 
 .contact-btn:hover {
-  border-color: var(--blue);
-  box-shadow: 0 0 0 1px var(--blue);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
 }
 
 .contact-icon {
   width: 44px;
   height: 44px;
-  background: var(--blue);
-  color: #fff;
+  background: var(--accent);
+  color: var(--bg-primary);
   border-radius: 50%;
   display: flex;
   align-items: center;

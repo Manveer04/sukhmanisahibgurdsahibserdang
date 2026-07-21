@@ -26,8 +26,8 @@
     {
       name: "Giani Sajanpreet Singh",
       role: "Giani",
-      phone: "601121324736",
-      display: "+6011-21324736",
+      phone: "601121324796",
+      display: "+6011-21324796",
     },
   ];
 
@@ -211,7 +211,7 @@
   function buildBookingMessage(session) {
     var displayTime = TIME_DISPLAY[session.timeSlot] || session.timeSlot;
     return [
-      "WJKK, WJKF \uD83D\uDE4F",
+      "WJKK, WJKF",
       "",
       "I would like to book the following Sukhmani Sahib session:",
       "",
