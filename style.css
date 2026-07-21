@@ -2,23 +2,23 @@
    CSS Variables — Light & Dark Mode
    ============================================ */
 :root {
-  --bg-primary: #f5f7fa;
-  --bg-secondary: #ffffff;
-  --bg-card: #ffffff;
-  --text-primary: #1a1a2e;
-  --text-secondary: #555770;
-  --text-muted: #8e8ea0;
-  --border: #e2e4e9;
-  --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  --shadow-hover: 0 6px 24px rgba(0, 0, 0, 0.1);
+  --bg-primary: #fdf6ec;
+  --bg-secondary: rgba(255, 255, 255, 0.88);
+  --bg-card: rgba(255, 255, 255, 0.92);
+  --text-primary: #2d1b0e;
+  --text-secondary: #5c4a3a;
+  --text-muted: #8c7a6a;
+  --border: rgba(180, 150, 110, 0.3);
+  --shadow: 0 2px 12px rgba(120, 80, 20, 0.08);
+  --shadow-hover: 0 6px 24px rgba(120, 80, 20, 0.14);
   --green: #22c55e;
   --green-bg: #f0fdf4;
   --green-border: #bbf7d0;
   --red: #ef4444;
   --red-bg: #fef2f2;
   --red-border: #fecaca;
-  --blue: #3b82f6;
-  --blue-hover: #2563eb;
+  --blue: #b8860b;
+  --blue-hover: #9a7209;
   --radius: 12px;
   --radius-sm: 8px;
   --transition: 0.25s ease;
@@ -26,36 +26,40 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-primary: #0f172a;
-    --bg-secondary: #1e293b;
-    --bg-card: #1e293b;
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-    --border: #334155;
+    --bg-primary: #1a120a;
+    --bg-secondary: rgba(30, 24, 16, 0.88);
+    --bg-card: rgba(35, 28, 18, 0.92);
+    --text-primary: #f5ead8;
+    --text-secondary: #c4a882;
+    --text-muted: #8a7460;
+    --border: rgba(180, 150, 110, 0.25);
     --shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
     --shadow-hover: 0 6px 24px rgba(0, 0, 0, 0.4);
     --green-bg: #052e16;
     --green-border: #166534;
     --red-bg: #450a0a;
     --red-border: #7f1d1d;
+    --blue: #d4a843;
+    --blue-hover: #b8922e;
   }
 }
 
 body.dark {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-card: #1e293b;
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --border: #334155;
+  --bg-primary: #1a120a;
+  --bg-secondary: rgba(30, 24, 16, 0.88);
+  --bg-card: rgba(35, 28, 18, 0.92);
+  --text-primary: #f5ead8;
+  --text-secondary: #c4a882;
+  --text-muted: #8a7460;
+  --border: rgba(180, 150, 110, 0.25);
   --shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
   --shadow-hover: 0 6px 24px rgba(0, 0, 0, 0.4);
   --green-bg: #052e16;
   --green-border: #166534;
   --red-bg: #450a0a;
   --red-border: #7f1d1d;
+  --blue: #d4a843;
+  --blue-hover: #b8922e;
 }
 
 /* ============================================
@@ -75,16 +79,35 @@ html {
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  background: var(--bg-primary);
-  background-image: url("background.png");
-  background-size: cover;
-  background-attachment: fixed;
-  background-position: center;
-  background-repeat: no-repeat;
+  background-color: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.6;
   min-height: 100vh;
-  transition: background var(--transition), color var(--transition);
+  transition: color var(--transition);
+}
+
+.bg-blur {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: url("background.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(12px);
+  -webkit-filter: blur(12px);
+  transform: scale(1.1);
+}
+
+.bg-blur::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(253, 246, 236, 0.6);
+}
+
+body.dark .bg-blur::after {
+  background: rgba(26, 18, 10, 0.7);
 }
 
 /* ============================================
@@ -126,8 +149,10 @@ body {
 }
 
 .logo img {
-  width: 100%;
-  height: 100%;
+  width: 44px;
+  height: 44px;
+  max-width: 100%;
+  max-height: 100%;
   object-fit: cover;
   display: block;
 }
