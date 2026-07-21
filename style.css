@@ -335,6 +335,10 @@ body.dark .icon-moon {
   margin-bottom: 12px;
 }
 
+.info-card--timings .time-slots {
+  margin-top: 8px;
+}
+
 .time-slot {
   display: inline-block;
   padding: 6px 14px;
