@@ -13,7 +13,7 @@
   // CONFIGURATION
   // ========================================
 
-  const API_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
+  const API_URL = "https://script.google.com/macros/s/AKfycbxF4XP8dbiJwv6D5U3mG_9woUAJrUVIytDYhMcqPad1LV99d2U_GUJWF0tR3rWHvNHB/exec";
   const REFRESH_INTERVAL = 30000;
 
   const CONTACTS = [
